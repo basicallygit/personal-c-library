@@ -21,40 +21,35 @@
 #define eprintf(format, ...) fprintf(stderr, format, ##__VA_ARGS__)
 #define eputs(str) fprintf(stderr, "%s\n", str)
 
-char* readline(const char* prompt) {
-    if (prompt != NULL)
-        printf("%s", prompt);
+// Increment in chunks of 32 bytes per realloc
+#define READLINE_BUF_INCREMENT 32
 
-    char* input = NULL;
-    size_t size = 0;
-    size_t capacity = 0;
+char* readline(void) {
+	char* input = malloc(READLINE_BUF_INCREMENT);
+	if (input == NULL)
+		return NULL;
+	
+	size_t size = 0;
+	size_t capacity = READLINE_BUF_INCREMENT;
 
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {
-        if (size + 1 >= capacity) {
-            capacity += 16;
-            char* temp = realloc(input, capacity);
-            if (temp == NULL) {
-                if (input != NULL) // do not free on first re-alloc
-                    free(input);
+	int c;
+	while((c = getchar()) != '\n' && c != EOF) {
+		if (size + 1 >= capacity) {
+			capacity += READLINE_BUF_INCREMENT;
+			char* temp = realloc(input, capacity);
+			
+			if (temp == NULL) {
+				free(input);
+				return NULL;
+			}
+			input = temp;
+		}
+		input[size++] = c;
+	}
 
-                return NULL;
-            }
-            input = temp;
-        }
-        input[size++] = c;
-    }
+	input[size] = '\0';
 
-    if (size == 0) { // empty input
-        input = malloc(1);
-        if (input == NULL) {
-            return NULL;
-        }
-    }
-
-    input[size] = '\0';
-
-    return input;
+	return input;
 }
 
 char* readpassword(const char* prompt) {

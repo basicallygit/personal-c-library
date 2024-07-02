@@ -16,4 +16,4 @@ jobs:
     - name: make
       run: make
     - name: Run tests
-      run: ./main
+      run: echo "password123" | ./main

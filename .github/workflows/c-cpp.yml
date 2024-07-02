@@ -16,4 +16,4 @@ jobs:
     - name: make
       run: make
     - name: Run tests
-      run: echo "password123" | ./main
+      run: printf "userinput123\npassword123\n" | ./main
